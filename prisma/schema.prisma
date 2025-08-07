@@ -1,0 +1,79 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql" // O tu base de datos preferida
+  url      = env("DATABASE_URL")
+}
+
+// BD
+model Homologacion {
+  id                  Int                    @id @default(autoincrement())
+  nombreHomol         String?                @db.VarChar(45)
+  eventos             Evento[]
+  oportunidades_rel   RelacionOportHomol[]
+
+  @@map("homologaciones")
+}
+
+model Evento {
+  id           Int          @default(autoincrement())
+  detalle      String?      @db.VarChar(45)
+  id_homol     Int
+  homologacion Homologacion @relation(fields: [id_homol], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([id, id_homol])
+  @@index([id_homol])
+  @@map("eventos")
+}
+
+model Usuario {
+  id        String   @id @default(uuid())
+  username  String   @unique @map("username")
+  password  String   @db.VarChar(255)
+  nombre    String?  @db.VarChar(45)
+  correo    String?  @unique @db.VarChar(45)
+  rol       String?  @db.VarChar(45)
+  area      String?  @db.VarChar(45)
+
+  @@map("usuarios")
+}
+
+model Canal {
+  id            Int           @id @default(autoincrement()) // Cambiado a autoincremental
+  nombre        String        @db.VarChar(255)
+  pais          String        @db.VarChar(45)
+  comercial     String        @db.VarChar(255)
+  oportunidades Oportunidad[]
+
+  @@map("canales")
+}
+
+model Oportunidad {
+  id                  Int                    @default(autoincrement())
+  nombre              String                 @db.VarChar(255)
+  pais                String                 @db.VarChar(45)
+  id_canal            Int
+  canal               Canal                  @relation(fields: [id_canal], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  homologaciones_rel  RelacionOportHomol[]
+
+  @@id([id, id_canal])
+  @@index([id_canal])
+  @@map("oportunidades")
+}
+
+// Modelo para la tabla de unión (Muchos a Muchos)
+model RelacionOportHomol {
+  id                Int          @id @default(autoincrement())
+  oportunidades_id  Int
+  oportunidades_canal_id Int // Necesario para la clave compuesta de Oportunidad
+  homologaciones_id Int
+
+  oportunidad Oportunidad @relation(fields: [oportunidades_id, oportunidades_canal_id], references: [id, id_canal], onDelete: NoAction, onUpdate: NoAction)
+  homologacion Homologacion @relation(fields: [homologaciones_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([oportunidades_id, oportunidades_canal_id])
+  @@index([homologaciones_id])
+  @@map("relacion_oport_homol")
+}
