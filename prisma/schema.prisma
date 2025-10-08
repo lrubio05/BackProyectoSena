@@ -9,10 +9,10 @@ datasource db {
 
 // BD
 model Homologacion {
-  id                  Int                    @id @default(autoincrement())
-  nombreHomol         String?                @db.VarChar(45)
-  eventos             Evento[]
-  oportunidades_rel   RelacionOportHomol[]
+  id                Int                  @id @default(autoincrement())
+  nombreHomol       String?              @db.VarChar(45)
+  eventos           Evento[]
+  oportunidades_rel RelacionOportHomol[]
 
   @@map("homologaciones")
 }
@@ -29,13 +29,13 @@ model Evento {
 }
 
 model Usuario {
-  id        String   @id @default(uuid())
-  username  String   @unique @map("username")
-  password  String   @db.VarChar(255)
-  nombre    String?  @db.VarChar(45)
-  correo    String?  @unique @db.VarChar(45)
-  rol       String?  @db.VarChar(45)
-  area      String?  @db.VarChar(45)
+  id       String  @id @default(uuid())
+  username String  @unique @map("username")
+  password String  @db.VarChar(255)
+  nombre   String? @db.VarChar(45)
+  correo   String? @unique @db.VarChar(45)
+  rol      String? @db.VarChar(45)
+  area     String? @db.VarChar(45)
 
   @@map("usuarios")
 }
@@ -51,12 +51,12 @@ model Canal {
 }
 
 model Oportunidad {
-  id                  Int                    @default(autoincrement())
-  nombre              String                 @db.VarChar(255)
-  pais                String                 @db.VarChar(45)
-  id_canal            Int
-  canal               Canal                  @relation(fields: [id_canal], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  homologaciones_rel  RelacionOportHomol[]
+  id                 Int                  @default(autoincrement())
+  nombre             String               @db.VarChar(255)
+  pais               String               @db.VarChar(45)
+  id_canal           Int
+  canal              Canal                @relation(fields: [id_canal], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  homologaciones_rel RelacionOportHomol[]
 
   @@id([id, id_canal])
   @@index([id_canal])
@@ -65,12 +65,12 @@ model Oportunidad {
 
 // Modelo para la tabla de unión (Muchos a Muchos)
 model RelacionOportHomol {
-  id                Int          @id @default(autoincrement())
-  oportunidades_id  Int
+  id                     Int @id @default(autoincrement())
+  oportunidades_id       Int
   oportunidades_canal_id Int // Necesario para la clave compuesta de Oportunidad
-  homologaciones_id Int
+  homologaciones_id      Int
 
-  oportunidad Oportunidad @relation(fields: [oportunidades_id, oportunidades_canal_id], references: [id, id_canal], onDelete: NoAction, onUpdate: NoAction)
+  oportunidad  Oportunidad  @relation(fields: [oportunidades_id, oportunidades_canal_id], references: [id, id_canal], onDelete: NoAction, onUpdate: NoAction)
   homologacion Homologacion @relation(fields: [homologaciones_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([oportunidades_id, oportunidades_canal_id])
