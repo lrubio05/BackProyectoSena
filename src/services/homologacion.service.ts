@@ -20,14 +20,43 @@ export const getById = async (id: string) => {
 
 // Función para crear una nueva homologación
 export const create = async (homologacionData: any) => {
-  const { nombreHomol } = homologacionData;
-  if (!nombreHomol) {
-    throw new Error('Todos los campos (nombre) son obligatorios.');
+  const { nombreHomol, id_oportunidad } = homologacionData;
+  
+  if (!nombreHomol || !id_oportunidad) {
+    throw new Error('Nombre y oportunidad son obligatorios.');
   }
-  const newHomologacion = await prisma.homologacion.create({
-    data: { nombreHomol },
+
+  // Use transaction to ensure data consistency
+  return await prisma.$transaction(async (tx) => {
+    // Create homologacion
+    const newHomologacion = await tx.homologacion.create({
+      data: { nombreHomol }
+    });
+
+    // Get oportunidad to access its canal_id
+    const oportunidad = await tx.oportunidad.findMany({
+      where: { id: parseInt(id_oportunidad) },
+      select: { id_canal: true }
+    });
+
+    if (!oportunidad || oportunidad.length === 0) {
+      throw new Error('Oportunidad no encontrada');
+    }
+
+    // Create relation
+    // Declare variable and set default value for canalId
+    const canalId = oportunidad[0]?.id_canal ?? 0;
+
+    await tx.relacionOportHomol.create({
+      data: {
+      oportunidades_id: parseInt(id_oportunidad),
+      oportunidades_canal_id: canalId,
+      homologaciones_id: newHomologacion.id
+      }
+    });
+
+    return newHomologacion;
   });
-  return newHomologacion;
 };
 
 // Función para actualizar una homologación

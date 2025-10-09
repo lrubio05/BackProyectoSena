@@ -25,7 +25,7 @@ export const create = async (oportunidadData: any) => {
     throw new Error('Todos los campos (nombre, país, id_canal) son obligatorios.');
   }
   const newOportunidad = await prisma.oportunidad.create({
-    data: { nombre, pais, id_canal },
+    data: { nombre, pais, id_canal: parseInt(id_canal) },
   });
   return newOportunidad;
 };
@@ -37,7 +37,7 @@ export const update = async (id: string, oportunidadData: any) => {
     data: {
       nombre: oportunidadData.nombre,
       pais: oportunidadData.pais,
-      id_canal: oportunidadData.id_canal,
+      id_canal: parseInt(oportunidadData.id_canal),
     },
   });
   return updatedOportunidad;
