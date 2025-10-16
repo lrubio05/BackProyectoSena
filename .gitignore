@@ -16,3 +16,6 @@ Thumbs.db
 # Archivos del editor
 .vscode/
 .idea/
+
+package_jest.json
+jest.config.cjs

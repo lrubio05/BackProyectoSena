@@ -51,7 +51,7 @@ model Canal {
 }
 
 model Oportunidad {
-  id                 Int                  @default(autoincrement())
+  id                 Int                  @unique @default(autoincrement())
   nombre             String               @db.VarChar(255)
   pais               String               @db.VarChar(45)
   id_canal           Int
@@ -67,13 +67,12 @@ model Oportunidad {
 model RelacionOportHomol {
   id                     Int @id @default(autoincrement())
   oportunidades_id       Int
-  oportunidades_canal_id Int // Necesario para la clave compuesta de Oportunidad
   homologaciones_id      Int
 
-  oportunidad  Oportunidad  @relation(fields: [oportunidades_id, oportunidades_canal_id], references: [id, id_canal], onDelete: NoAction, onUpdate: NoAction)
+  oportunidad  Oportunidad  @relation(fields: [oportunidades_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   homologacion Homologacion @relation(fields: [homologaciones_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
-  @@index([oportunidades_id, oportunidades_canal_id])
+  @@index([oportunidades_id])
   @@index([homologaciones_id])
   @@map("relacion_oport_homol")
 }

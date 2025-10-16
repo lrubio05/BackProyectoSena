@@ -28,29 +28,14 @@ export const create = async (homologacionData: any) => {
 
   // Use transaction to ensure data consistency
   return await prisma.$transaction(async (tx) => {
-    // Create homologacion
+    // Crear homologacion
     const newHomologacion = await tx.homologacion.create({
       data: { nombreHomol }
     });
 
-    // Get oportunidad to access its canal_id
-    const oportunidad = await tx.oportunidad.findMany({
-      where: { id: parseInt(id_oportunidad) },
-      select: { id_canal: true }
-    });
-
-    if (!oportunidad || oportunidad.length === 0) {
-      throw new Error('Oportunidad no encontrada');
-    }
-
-    // Create relation
-    // Declare variable and set default value for canalId
-    const canalId = oportunidad[0]?.id_canal ?? 0;
-
     await tx.relacionOportHomol.create({
       data: {
       oportunidades_id: parseInt(id_oportunidad),
-      oportunidades_canal_id: canalId,
       homologaciones_id: newHomologacion.id
       }
     });
